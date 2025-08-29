@@ -8,16 +8,15 @@ on:
 jobs:
   train_and_promote:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
-      # 1) Make sure Python is present and consistent
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
-      # 2) Auth to GCP using your repo secret key
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -28,17 +27,18 @@ jobs:
         with:
           project_id: ${{ secrets.PROJECT_ID }}
 
-      # 3) Sanity: show the files we checked out
-      - name: Show repo tree
-        run: ls -R
-
-      # 4) Install deps (this MUST include joblib, scikit-learn, etc.)
       - name: Install Python deps
         run: |
           python -m pip install --upgrade pip
-          pip install -r training/requirements.txt
+          echo "==== repo tree ===="
+          ls -R
+          echo "==== show requirements.txt ===="
+          test -f training/requirements.txt && cat training/requirements.txt || (echo "training/requirements.txt NOT FOUND"; exit 1)
+          echo "==== installing ===="
+          python -m pip install -r training/requirements.txt
+          echo "==== import smoke test ===="
+          python -c "import joblib, sklearn, pandas, numpy; from google.cloud import bigquery, storage; print('All deps import ok')"
 
-      # 5) Train & maybe promote
       - name: Train and maybe promote
         env:
           PROJECT_ID:   ${{ secrets.PROJECT_ID }}
@@ -46,7 +46,6 @@ jobs:
           MODEL_BUCKET: ${{ secrets.MODEL_BUCKET }}
         run: python training/train.py
 
-      # 6) Debug output + artifact check
       - name: Show promotion result
         run: cat promotion.json || true
 
