@@ -1,1 +1,41 @@
+name: ct-train-and-upload
 
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  train_and_promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+
+      - name: Install Python deps
+        run: pip install -r training/requirements.txt
+
+      - name: Train and maybe promote
+        env:
+          PROJECT_ID:   ${{ secrets.PROJECT_ID }}
+          BQ_TABLE:     ${{ secrets.BQ_TABLE }}
+          MODEL_BUCKET: ${{ secrets.MODEL_BUCKET }}
+        run: python training/train.py
+
+      - name: Show promotion result
+        run: cat promotion.json || true
+
+      - name: Verify artifacts in GCS
+        run: |
+          gsutil ls gs://${{ secrets.MODEL_BUCKET }}/registry/current/ || true
+          gsutil ls gs://${{ secrets.MODEL_BUCKET }}/registry/versions/ || true
