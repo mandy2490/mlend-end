@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import os, joblib, pandas as pd
 from google.cloud import storage
-
+#app.py for serving api endpoint
 PROJECT_ID   = os.getenv("PROJECT_ID")
 MODEL_BUCKET = os.getenv("MODEL_BUCKET")
 MODEL_LOCAL  = "/tmp/model.joblib"
