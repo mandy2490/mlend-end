@@ -1,8 +1,6 @@
-google-cloud-bigquery
-google-cloud-storage
-db-dtypes
+fastapi
+uvicorn[standard]
 pandas
-scikit-learn
-joblib
 numpy
-
+joblib
+google-cloud-storage
