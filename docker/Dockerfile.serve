@@ -1,1 +1,20 @@
+FROM python:3.11-slim
+
+# Put everything under /app
+WORKDIR /app
+ENV PYTHONUNBUFFERED=1
+
+# Install runtime deps for the API
+COPY serving/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the FastAPI app
+COPY serving/app.py .
+
+# Cloud Run uses $PORT; default 8080 for local runs
+ENV PORT=8080
+EXPOSE 8080
+
+# PROJECT_ID and MODEL_BUCKET will be supplied at deploy time
+CMD ["uvicorn","app:app","--host","0.0.0.0","--port","8080"]
 
