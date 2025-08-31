@@ -77,8 +77,9 @@ jobs:
         with:
           project_id: ${{ secrets.PROJECT_ID }}
 
+      # 🔑 Use the exact registry host that matches your repo location (us vs us-central1)
       - name: Configure Docker auth for Artifact Registry
-        run: gcloud auth configure-docker ${{ secrets.REGION }}-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker ${{ secrets.REPO_HOST }} --quiet
 
       - name: Build & Push image
         env:
@@ -90,7 +91,7 @@ jobs:
       - name: Deploy to Cloud Run
         env:
           IMAGE:  ${{ secrets.REPO_PATH }}/taxi-fare-api:${{ github.sha }}
-          REGION: ${{ secrets.REGION }}
+          REGION: ${{ secrets.REGION }}    # e.g., us-central1 (Cloud Run region)
         run: |
           gcloud run deploy taxi-fare-api \
             --image "$IMAGE" \
