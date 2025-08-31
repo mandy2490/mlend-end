@@ -6,7 +6,7 @@ from google.cloud import storage
 PROJECT_ID   = os.getenv("PROJECT_ID")
 MODEL_BUCKET = os.getenv("MODEL_BUCKET")
 MODEL_LOCAL  = "/tmp/model.joblib"
-
+##
 FEATURES = ["trip_distance","passenger_count","pickup_hour","pickup_dow","pickup_month"]
 
 app = FastAPI(title="Taxi Fare API")
